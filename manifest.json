@@ -1,26 +1,14 @@
-[
-  {
-    "id": "template-provider",
-    "name": "Template Provider",
-    "description": "A starter template for creating Nuvio providers.",
-    "version": "1.0.0",
-    "author": "Your Name",
-    "supportedTypes": [
-      "movie",
-      "tv"
-    ],
-    "filename": "providers/template.js",
-    "enabled": false,
-    "logo": "",
-    "contentLanguage": [
-      "en"
-    ],
-    "formats": [
-      "mp4",
-      "mkv"
-    ],
-    "limited": false,
-    "disabledPlatforms": [],
-    "supportsExternalPlayer": true
-  }
-]
+{
+  "providers": [
+    {
+      "id": "emby",
+      "name": "My Emby Server",
+      "description": "Streams from personal Emby",
+      "version": "1.0.0",
+      "author": "local",
+      "supportedTypes": ["movie", "tv","anime"],
+      "filename": "providers/emby.js",
+      "enabled": true
+    }
+  ]
+}
