@@ -1,10 +1,19 @@
 {
-  "id": "emby",
-  "name": "My Emby Server",
-  "description": "Streams from my personal Emby server",
+  "name": "My Nuvio Repo",
   "version": "1.0.0",
-  "author": "You",
-  "supportedTypes": ["movie", "tv"],
-  "filename": "providers/emby.js",
-  "enabled": true
+  "scrapers": [
+    {
+      "id": "emby",
+      "name": "My Emby Server",
+      "description": "Streams from my personal Emby server",
+      "version": "1.0.0",
+      "author": "You",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "filename": "providers/emby.js",
+      "enabled": true
+    }
+  ]
 }
