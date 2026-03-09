@@ -2,34 +2,49 @@ const EMBY_SERVER = "https://play.embyil.tv:443";
 const USERNAME = "s851pmcm";
 const PASSWORD = "Aa10203040!!";
 const USER_ID = "3ee5327c07d44fed9e44b65958f990f1";
+const PROVIDER_ID = "Emby";
 
 function getStreams(tmdbId, mediaType, season, episode) {
+    const seasonNum = toNumberOrNull(season);
+    const episodeNum = toNumberOrNull(episode);
+    const media = String(mediaType || "").toLowerCase();
+    const isTv = media === "tv" || media === "series" || media === "show" || (seasonNum != null && episodeNum != null);
 
-    return login().then(token => {
+    console.log(`[${PROVIDER_ID}] request tmdb=${tmdbId} mediaType=${mediaType} season=${season} episode=${episode}`);
 
-        return searchItem(token, tmdbId, season, episode).then(item => {
-
-            if (!item) return [];
-
-            let streamUrl = `${EMBY_SERVER}/Videos/${item.Id}/stream?static=true&api_key=${token}`;
-
-            // For TV shows, append season/episode if needed
-            if (mediaType === "tv" && season != null && episode != null) {
-                const ep = item.Seasons?.find(s => s.IndexNumber === season)?.Episodes?.find(e => e.IndexNumber === episode);
-                if (ep) streamUrl = `${EMBY_SERVER}/Videos/${ep.Id}/stream?static=true&api_key=${token}`;
+    return login()
+        .then(token => {
+            if (isTv) {
+                return findSeriesByTmdb(token, tmdbId)
+                    .then(series => {
+                        if (!series || seasonNum == null || episodeNum == null) {
+                            console.log(`[${PROVIDER_ID}] no series or missing season/episode`);
+                            return [];
+                        }
+                        return findEpisode(token, series.Id, seasonNum, episodeNum)
+                            .then(ep => {
+                                if (!ep) {
+                                    console.log(`[${PROVIDER_ID}] episode not found for S${seasonNum}E${episodeNum}`);
+                                    return [];
+                                }
+                                return [toStream(ep, token)];
+                            });
+                    });
             }
 
-            return [{
-                name: "Emby",
-                title: item.Name,
-                url: streamUrl,
-                quality: "Auto",
-                provider: "emby"
-            }];
-
+            return findMovieByTmdb(token, tmdbId)
+                .then(movie => {
+                    if (!movie) {
+                        console.log(`[${PROVIDER_ID}] movie not found`);
+                        return [];
+                    }
+                    return [toStream(movie, token)];
+                });
+        })
+        .catch(err => {
+            console.error(`[${PROVIDER_ID}] error: ${err && err.message ? err.message : String(err)}`);
+            return [];
         });
-
-    }).catch(() => []);
 }
 
 function login() {
@@ -43,19 +58,56 @@ function login() {
         headers,
         body: JSON.stringify({ Username: USERNAME, Pw: PASSWORD })
     })
-    .then(res => res.json())
-    .then(data => {
-        if (!data.AccessToken) throw new Error("No AccessToken returned");
-        return data.AccessToken;
-    });
+        .then(readJson)
+        .then(data => {
+            if (!data.AccessToken) throw new Error("No AccessToken returned");
+            return data.AccessToken;
+        });
 }
 
-function searchItem(token, tmdbId, season, episode) {
-
-    const url = `${EMBY_SERVER}/Users/${USER_ID}/Items?AnyProviderIdEquals=Tmdb.${tmdbId}&api_key=${token}`;
+function findMovieByTmdb(token, tmdbId) {
+    const url = `${EMBY_SERVER}/Users/${USER_ID}/Items?AnyProviderIdEquals=Tmdb.${encodeURIComponent(tmdbId)}&IncludeItemTypes=Movie&Recursive=true&Limit=1&api_key=${token}`;
     return fetch(url)
-        .then(res => res.json())
+        .then(readJson)
         .then(data => data.Items && data.Items[0]);
+}
+
+function findSeriesByTmdb(token, tmdbId) {
+    const url = `${EMBY_SERVER}/Users/${USER_ID}/Items?AnyProviderIdEquals=Tmdb.${encodeURIComponent(tmdbId)}&IncludeItemTypes=Series&Recursive=true&Limit=1&api_key=${token}`;
+    return fetch(url)
+        .then(readJson)
+        .then(data => data.Items && data.Items[0]);
+}
+
+function findEpisode(token, seriesId, seasonNum, episodeNum) {
+    const url = `${EMBY_SERVER}/Shows/${seriesId}/Episodes?UserId=${USER_ID}&Season=${seasonNum}&api_key=${token}`;
+    return fetch(url)
+        .then(readJson)
+        .then(data => {
+            if (!data.Items || !data.Items.length) return null;
+            return data.Items.find(item => Number(item.IndexNumber) === episodeNum) || null;
+        });
+}
+
+function toStream(item, token) {
+    return {
+        name: PROVIDER_ID,
+        title: item.Name || "Emby Stream",
+        url: `${EMBY_SERVER}/Videos/${item.Id}/stream?static=true&api_key=${token}`,
+        quality: "Auto",
+        provider: PROVIDER_ID
+    };
+}
+
+function toNumberOrNull(value) {
+    if (value === null || value === undefined || value === "") return null;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+}
+
+function readJson(res) {
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
 }
 
 // Export for Nuvio

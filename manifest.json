@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "scrapers": [
     {
-      "id": "emby",
-      "name": "My Emby Server",
+      "id": "Emby",
+      "name": "Emby",
       "supportedTypes": [
         "movie",
         "tv"
