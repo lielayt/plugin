@@ -120,7 +120,8 @@ function buildSubtitleTracks(itemId, token, playbackInfo) {
                 const index = Number(s.Index);
                 if (!Number.isFinite(index)) return;
 
-                const language = normalizeLanguage(s.Language, s.DisplayTitle);
+                const rawLanguage = getRawLanguageCode(s.Language, s.DisplayTitle);
+                const normalizedLanguage = normalizeLanguage(rawLanguage, s.DisplayTitle);
                 let subUrl = null;
                 if (s.DeliveryUrl) {
                     subUrl = `${EMBY_SERVER}${s.DeliveryUrl}`;
@@ -134,9 +135,9 @@ function buildSubtitleTracks(itemId, token, playbackInfo) {
 
                 if (!subUrl) return;
                 tracks.push({
-                    lang: language,
-                    language,
-                    label: s.DisplayTitle || (language === "heb" ? "Hebrew" : language.toUpperCase()),
+                    lang: normalizedLanguage,
+                    language: rawLanguage,
+                    label: s.DisplayTitle || s.DisplayLanguage || (normalizedLanguage === "heb" ? "Hebrew" : normalizedLanguage.toUpperCase()),
                     url: subUrl
                 });
             });
@@ -152,6 +153,13 @@ function buildSubtitleTracks(itemId, token, playbackInfo) {
         deduped.push(t);
     }
     return deduped;
+}
+
+function getRawLanguageCode(lang, title) {
+    if (lang && String(lang).trim()) return String(lang).toLowerCase();
+    const raw = String(title || "").toLowerCase();
+    if (raw.includes("hebrew") || raw.includes("heb")) return "he";
+    return "und";
 }
 
 function normalizeLanguage(lang, title) {
