@@ -1,8 +1,8 @@
-# Nuvio Providers
+# Plugin
 
 A collection of streaming providers for the Nuvio app. Providers are JavaScript modules that fetch streams from various sources.
 
-?? **[Read the Comprehensive Developer Guide](DOCUMENTATION.md)**
+**[Read the Comprehensive Developer Guide](DOCUMENTATION.md)**
 
 ## Quick Start
 
@@ -11,11 +11,11 @@ A collection of streaming providers for the Nuvio app. Providers are JavaScript 
 1. Open **Nuvio** > **Settings** > **Plugins**
 2. Add this repository URL:
    ```
-   https://raw.githubusercontent.com/yoruix/nuvio-providers/refs/heads/main/manifest.json
+   https://raw.githubusercontent.com/lielayt/plugin/refs/heads/main/manifest.json
    ```
 3. Refresh and enable the providers you want
 4. **Developer Mode**: To test local changes, run `npm start` on your computer.
-   > ?? **Important:** You must use the **development build** of Nuvio (`npx expo run:android` or `npx expo run:ios`). Some providers may work locally but fail in React Native.
+   > **Important:** You must use the **development build** of Nuvio (`npx expo run:android` or `npx expo run:ios`). Some providers may work locally but fail in React Native.
    - Go to **Settings** > **Developer** > **Plugin Tester** in the app.
    - Enter your local server URL (e.g., `http://192.168.1.5:3000/manifest.json`).
    - You can also test individual provider URLs here.
@@ -26,23 +26,23 @@ A collection of streaming providers for the Nuvio app. Providers are JavaScript 
 
 ```
 nuvio-providers/
-??? src/                    # Source files (multi-file development)
-?   ??? vixsrc/
-?   ?   ??? index.js        # Main entry point
-?   ?   ??? extractor.js    # Stream extraction
-?   ?   ??? http.js         # HTTP utilities
-?   ?   ??? ...
-?   ??? uhdmovies/
-?       ??? ...
-?
-??? providers/              # Output directory (ready-to-use files)
-?   ??? vixsrc.js           # Bundled from src/vixsrc/
-?   ??? uhdmovies.js
-?   ??? ...
-?
-??? manifest.json           # Provider registry
-??? build.js                # Build script
-??? package.json
+ src/                    # Source files (multi-file development)
+    vixsrc/
+       index.js        # Main entry point
+       extractor.js    # Stream extraction
+       http.js         # HTTP utilities
+       ...
+    uhdmovies/
+        ...
+
+ providers/              # Output directory (ready-to-use files)
+    vixsrc.js           # Bundled from src/vixsrc/
+    uhdmovies.js
+    ...
+
+ manifest.json           # Provider registry
+ build.js                # Build script
+ package.json
 ```
 
 ---
