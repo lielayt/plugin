@@ -41,7 +41,7 @@
       ],
       "filename": "providers/emby.js",
       "enabled": true,
-      "logo": "",
+      "logo": "https://client.embyiltv.io/bg-auth-light.png",
       "contentLanguage": [
         "he",
         "en"
