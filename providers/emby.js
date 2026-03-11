@@ -215,7 +215,7 @@ function getPlaybackInfo(itemId, token, userId) {
                 width: source.MediaStreams[0].Width || 0,
                 height: source.MediaStreams[0].Height || 0,
                 bitrate: source.Bitrate || 0,
-                DisplayTitle: source.MediaStreams[0].DisplayTitle || ""
+                DisplayTitle: source.MediaStreams[0].DisplayTitle.split(" ")[0] || ""
 
             };
         })
